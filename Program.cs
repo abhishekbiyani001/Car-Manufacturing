@@ -3,11 +3,13 @@ using System.Threading;
 
 public class Volkswagen
 {
-    required public string Brand {
+    required public string Brand
+    {
         get;
         set;
     }
-    required public string Model {
+    required public string Model
+    {
         get;
         set;
     }
@@ -38,6 +40,8 @@ public class Volkswagen
 public class BMW : Volkswagen { }
 public class Audi : Volkswagen { }
 public class Mercedes : Volkswagen { }
+public class Lamborghini : Volkswagen { }
+public class Porsche : Volkswagen { }
 
 public class QualityCheck
 {
@@ -77,16 +81,18 @@ public class Program
 
         while (true)
         {
-            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes): ");
+            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes, Lamborghini, Porsche): ");
             BrandName = Console.ReadLine()!;
             Console.WriteLine("Enter model name: ");
             ModelName = Console.ReadLine()!;
 
-            Volkswagen? car = BrandName switch
+            Volkswagen? car = BrandName.ToLower() switch
             {
-                "BMW" => new BMW { Brand = BrandName, Model = ModelName },
-                "Audi" => new Audi { Brand = BrandName, Model = ModelName },
-                "Mercedes" => new Mercedes { Brand = BrandName, Model = ModelName },
+                "bmw" => new BMW { Brand = "BMW", Model = ModelName },
+                "audi" => new Audi { Brand = "Audi", Model = ModelName },
+                "mercedes" => new Mercedes { Brand = "Mercedes", Model = ModelName },
+                "lamborghini" => new Lamborghini { Brand = "Lamborghini", Model = ModelName },
+                "porsche" => new Porsche { Brand = "Porsche", Model = ModelName },
                 _ => null
             };
 
@@ -94,7 +100,7 @@ public class Program
             {
                 ExecuteCarOperations(car);
             }
-            else
+            else if (car == null)
             {
                 Console.WriteLine("Invalid brand name. Please enter BMW, Audi, or Mercedes.");
             }
@@ -111,6 +117,7 @@ public class Program
         QualityCheck qc = new QualityCheck();
         OrderProcessing op = new OrderProcessing();
 
+        // subscribe to events
         qc.QualityCheckEvent += c =>
         {
             Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
@@ -122,6 +129,7 @@ public class Program
         };
         qc.CheckQuality(car);
 
+        // unsubsrcibe from events
         qc.QualityCheckEvent -= c =>
         {
             Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
