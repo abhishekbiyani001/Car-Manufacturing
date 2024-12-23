@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 public interface IVehicle
 {
@@ -99,8 +100,11 @@ public class Program
 
         while (true)
         {
-            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes, Lamborghini, Porsche): ");
+            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes, Lamborghini, Porsche) or 'exit' to quit: ");
             BrandName = Console.ReadLine()!;
+            if (BrandName.ToLower() == "exit")
+                break;
+
             Console.WriteLine("Enter model name: ");
             ModelName = Console.ReadLine()!;
 
@@ -135,27 +139,25 @@ public class Program
         QualityCheck qc = new QualityCheck();
         OrderProcessing op = new OrderProcessing();
 
-        // Subscribe to events
-        qc.QualityCheckEvent += c =>
+        QualityCheck.QualityCheckDelegate qcHandler = c =>
         {
             Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
             op.ProcessOrder(c);
         };
-        op.OrderProcessedEvent += c =>
+
+        OrderProcessing.OrderProcessingDelegate opHandler = c =>
         {
             Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
         };
+
+        // Subscribe to events
+        qc.QualityCheckEvent += qcHandler;
+        op.OrderProcessedEvent += opHandler;
+
         qc.CheckQuality(car);
 
         // Unsubcsribe from events
-        qc.QualityCheckEvent -= c =>
-        {
-            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
-            op.ProcessOrder(c);
-        };
-        op.OrderProcessedEvent -= c =>
-        {
-            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
-        };
+        qc.QualityCheckEvent -= qcHandler;
+        op.OrderProcessedEvent -= opHandler;
     }
 }
