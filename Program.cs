@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 public class Volkswagen
 {
@@ -104,7 +105,7 @@ public class Mercedes : Volkswagen
 public class QualityCheck
 {
     public delegate void QualityCheckDelegate(Volkswagen car);
-    public event QualityCheckDelegate QualityCheckEvent;
+    public event QualityCheckDelegate? QualityCheckEvent;
 
     public void CheckQuality(Volkswagen car)
     {
@@ -118,7 +119,7 @@ public class QualityCheck
 public class OrderProcessing
 {
     public delegate void OrderProcessingDelegate(Volkswagen car);
-    public event OrderProcessingDelegate OrderProcessedEvent;
+    public event OrderProcessingDelegate? OrderProcessedEvent;
 
     public void ProcessOrder(Volkswagen car)
     {
@@ -133,7 +134,9 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Volkswagen car = new BMW { Brand = "BMW", Model = "X5" };
+        Console.WriteLine("Enter BMW model name: ");
+        string ModelName = Console.ReadLine();
+        Volkswagen car = new BMW { Brand = "BMW", Model = ModelName };
         car.StartEngine();
         car.Accelerate();
         car.Brake();
@@ -147,8 +150,11 @@ public class Program
 
         qc.CheckQuality(car);
         op.ProcessOrder(car);
+        Thread.Sleep(1000);
 
-        car = new Audi { Brand = "Audi", Model = "Q7" };
+        Console.WriteLine("Enter Audi model name: ");
+        ModelName = Console.ReadLine();
+        car = new Audi { Brand = "Audi", Model = ModelName };
         car.StartEngine();
         car.Accelerate();
         car.Brake();
