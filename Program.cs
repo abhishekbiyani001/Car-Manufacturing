@@ -14,93 +14,30 @@ public class Volkswagen
 
     public virtual void StartEngine()
     {
-        Console.WriteLine("Volkswagen engine started...");
+        Console.WriteLine();
+        Console.WriteLine($"{Brand} engine started...");
+        Thread.Sleep(750);
     }
-
     public virtual void StopEngine()
     {
-        Console.WriteLine("Volkswagen engine stopped...");
+        Console.WriteLine($"{Brand} engine stopped...");
+        Thread.Sleep(750);
     }
-
     public virtual void Accelerate()
     {
-        Console.WriteLine("Volkswagen accelerating...");
+        Console.WriteLine($"{Brand} accelerating...");
+        Thread.Sleep(750);
     }
-
     public virtual void Brake()
     {
-        Console.WriteLine("Volkswagen braking...");
+        Console.WriteLine($"{Brand} braking...");
+        Thread.Sleep(750);
     }
 }
 
-public class BMW : Volkswagen
-{
-    public override void StartEngine()
-    {
-        Console.WriteLine("BMW engine roaring...");
-    }
-
-    public override void StopEngine()
-    {
-        Console.WriteLine("BMW engine stopped...");
-    }
-
-    public override void Accelerate()
-    {
-        Console.WriteLine("BMW accelerating...");
-    }
-
-    public override void Brake()
-    {
-        Console.WriteLine("BMW braking...");
-    }
-}
-
-public class Audi : Volkswagen
-{
-    public override void StartEngine()
-    {
-        Console.WriteLine("Audi engine started...");
-    }
-
-    public override void StopEngine()
-    {
-        Console.WriteLine("Audi engine stopped...");
-    }
-
-    public override void Accelerate()
-    {
-        Console.WriteLine("Audi accelerating...");
-    }
-
-    public override void Brake()
-    {
-        Console.WriteLine("Audi braking...");
-    }
-}
-
-public class Mercedes : Volkswagen
-{
-    public override void StartEngine()
-    {
-        Console.WriteLine("Mercedes engine started...");
-    }
-
-    public override void StopEngine()
-    {
-        Console.WriteLine("Mercedes engine stopped...");
-    }
-
-    public override void Accelerate()
-    {
-        Console.WriteLine("Mercedes accelerating...");
-    }
-
-    public override void Brake()
-    {
-        Console.WriteLine("Mercedes braking...");
-    }
-}
+public class BMW : Volkswagen { }
+public class Audi : Volkswagen { }
+public class Mercedes : Volkswagen { }
 
 public class QualityCheck
 {
@@ -109,10 +46,10 @@ public class QualityCheck
 
     public void CheckQuality(Volkswagen car)
     {
-        Console.WriteLine();
-        Console.WriteLine("Performing quality check...");
+        Thread.Sleep(750);
+        Console.WriteLine("\nPerforming quality check...");
         QualityCheckEvent?.Invoke(car);
-        Console.WriteLine();
+        //Console.WriteLine("Quality check completed.");
     }
 }
 
@@ -123,9 +60,10 @@ public class OrderProcessing
 
     public void ProcessOrder(Volkswagen car)
     {
-        Console.WriteLine("Processing order...");
+        Thread.Sleep(750);
+        Console.WriteLine("\nProcessing order...");
         OrderProcessedEvent?.Invoke(car);
-        Console.WriteLine();
+        Console.WriteLine("Order processing completed.");
         Console.WriteLine();
     }
 }
@@ -134,40 +72,64 @@ public class Program
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Enter BMW model name: ");
-        string ModelName = Console.ReadLine();
-        Volkswagen car = new BMW { Brand = "BMW", Model = ModelName };
+        string? BrandName;
+        string? ModelName;
+
+        while (true)
+        {
+            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes): ");
+            BrandName = Console.ReadLine()!;
+            Console.WriteLine("Enter model name: ");
+            ModelName = Console.ReadLine()!;
+
+            Volkswagen? car = BrandName switch
+            {
+                "BMW" => new BMW { Brand = BrandName, Model = ModelName },
+                "Audi" => new Audi { Brand = BrandName, Model = ModelName },
+                "Mercedes" => new Mercedes { Brand = BrandName, Model = ModelName },
+                _ => null
+            };
+
+            if (car != null)
+            {
+                ExecuteCarOperations(car);
+            }
+            else
+            {
+                Console.WriteLine("Invalid brand name. Please enter BMW, Audi, or Mercedes.");
+            }
+        }
+    }
+
+    private static void ExecuteCarOperations(Volkswagen car)
+    {
         car.StartEngine();
         car.Accelerate();
         car.Brake();
         car.StopEngine();
 
         QualityCheck qc = new QualityCheck();
-        qc.QualityCheckEvent += car => Console.WriteLine($"Quality check completed for {car.Brand} {car.Model}");
-
         OrderProcessing op = new OrderProcessing();
-        op.OrderProcessedEvent += car => Console.WriteLine($"Order processed for {car.Brand} {car.Model}");
 
+        qc.QualityCheckEvent += c =>
+        {
+            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
+            op.ProcessOrder(c);
+        };
+        op.OrderProcessedEvent += c =>
+        {
+            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
+        };
         qc.CheckQuality(car);
-        op.ProcessOrder(car);
-        Thread.Sleep(1000);
 
-        Console.WriteLine("Enter Audi model name: ");
-        ModelName = Console.ReadLine();
-        car = new Audi { Brand = "Audi", Model = ModelName };
-        car.StartEngine();
-        car.Accelerate();
-        car.Brake();
-        car.StopEngine();
-
-        qc.CheckQuality(car);
-        op.ProcessOrder(car);
-
-        //car = new Mercedes { Brand = "Mercedes", Model = " Maybach GLS" };
-        //qc.CheckQuality(car);
-        //op.ProcessOrder(car);
-
-        qc.QualityCheckEvent -= car => Console.WriteLine($"Quality check completed for {car.Brand} {car.Model}");
-        op.OrderProcessedEvent -= car => Console.WriteLine($"Order processed for {car.Brand} {car.Model}");
+        qc.QualityCheckEvent -= c =>
+        {
+            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
+            op.ProcessOrder(c);
+        };
+        op.OrderProcessedEvent -= c =>
+        {
+            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
+        };
     }
 }
