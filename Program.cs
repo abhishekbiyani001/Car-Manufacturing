@@ -31,7 +31,7 @@ public class Program
             {
                 ExecuteCarOperations(car);
             }
-            else
+            else if (car == null)
             {
                 Console.WriteLine("Invalid brand name. Please enter a valid brand.");
             }

@@ -1,7 +1,13 @@
 public interface IVehicle
 {
-    string Brand { get; set; }
-    string Model { get; set; }
+    string Brand {
+        get;
+        set;
+    }
+    string Model {
+        get;
+        set;
+    }
 
     void StartEngine();
     void Accelerate();

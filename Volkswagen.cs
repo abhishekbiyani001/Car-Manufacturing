@@ -3,8 +3,14 @@ using System.Threading;
 
 public class Volkswagen : IVehicle
 {
-    public required string Brand { get; set; }
-    public required string Model { get; set; }
+    public required string Brand {
+        get;
+        set;
+    }
+    public required string Model {
+        get;
+        set;
+    }
 
     public virtual void StartEngine()
     {

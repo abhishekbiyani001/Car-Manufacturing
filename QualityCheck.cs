@@ -8,7 +8,7 @@ public class QualityCheck
 
     public void CheckQuality(IVehicle car)
     {
-        Thread.Sleep(1500);
+        Thread.Sleep(1000);
         Console.WriteLine("\nPerforming quality check...");
         Logger.Log($"{car.Brand} {car.Model}: Quality check completed.");
         QualityCheckEvent?.Invoke(car);

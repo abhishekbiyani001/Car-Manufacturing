@@ -8,7 +8,7 @@ public class OrderProcessing
 
     public void ProcessOrder(IVehicle car)
     {
-        Thread.Sleep(1500);
+        Thread.Sleep(1000);
         Console.WriteLine("\nProcessing order...");
         OrderProcessedEvent?.Invoke(car);
         Thread.Sleep(2000);
