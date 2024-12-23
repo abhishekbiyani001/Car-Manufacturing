@@ -1,120 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
-
-public interface IVehicle
-{
-    string Brand {
-        get;
-        set;
-    }
-    string Model {
-        get;
-        set;
-    }
-
-    void StartEngine();
-    void Accelerate();
-    void Brake();
-    void StopEngine();
-}
-
-public class Volkswagen : IVehicle
-{
-    public required string Brand {
-        get;
-        set;
-    }
-    public required string Model {
-        get;
-        set;
-    }
-
-    public virtual void StartEngine()
-    {
-        Logger.Log($"{Brand} {Model}: Engine started.");
-        Console.WriteLine();
-        Console.WriteLine($"{Brand} engine started...");
-        Thread.Sleep(750);
-    }
-
-    public virtual void Accelerate()
-    {
-        Console.WriteLine($"{Brand} accelerating...");
-        Thread.Sleep(750);
-    }
-
-    public virtual void Brake()
-    {
-        Console.WriteLine($"{Brand} braking...");
-        Thread.Sleep(750);
-    }
-
-    public virtual void StopEngine()
-    {
-        Console.WriteLine($"{Brand} engine stopped...");
-        Thread.Sleep(750);
-    }
-}
-
-public class BMW : Volkswagen { }
-public class Audi : Volkswagen { }
-public class Mercedes : Volkswagen { }
-public class Lamborghini : Volkswagen { }
-public class Porsche : Volkswagen { }
-
-public class QualityCheck
-{
-    public delegate void QualityCheckDelegate(IVehicle car);
-    public event QualityCheckDelegate? QualityCheckEvent;
-
-    public void CheckQuality(IVehicle car)
-    {
-        Thread.Sleep(750);
-        Console.WriteLine("\nPerforming quality check...");
-        Logger.Log($"{car.Brand} {car.Model}: Quality check completed.");
-        QualityCheckEvent?.Invoke(car);
-    }
-}
-
-public class OrderProcessing
-{
-    public delegate void OrderProcessingDelegate(IVehicle car);
-    public event OrderProcessingDelegate? OrderProcessedEvent;
-
-    public void ProcessOrder(IVehicle car)
-    {
-        Thread.Sleep(750);
-        Console.WriteLine("\nProcessing order...");
-        OrderProcessedEvent?.Invoke(car);
-        Thread.Sleep(2000);
-        Logger.Log($"{car.Brand} {car.Model}: Order processed.");
-        Console.WriteLine("Order processing completed.");
-        Console.WriteLine();
-    }
-}
-
-public class Logger
-{
-    private static readonly string logFilePath = "CarLogs.txt";
-
-    public static void Log(string message)
-    {
-        try
-        {
-            using (StreamWriter sw = File.AppendText(logFilePath))
-            {
-                sw.WriteLine($"{DateTime.Now}: {message}");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Failed to write to log file: {ex.Message}");
-        }
-    }
-}
-
 
 public class Program
 {
@@ -147,7 +31,7 @@ public class Program
             {
                 ExecuteCarOperations(car);
             }
-            else if (car == null)
+            else
             {
                 Console.WriteLine("Invalid brand name. Please enter a valid brand.");
             }
@@ -164,24 +48,24 @@ public class Program
         QualityCheck qc = new QualityCheck();
         OrderProcessing op = new OrderProcessing();
 
-        QualityCheck.QualityCheckDelegate qcHandler = c =>
-        {
-            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
-            op.ProcessOrder(c);
-        };
-
-        OrderProcessing.OrderProcessingDelegate opHandler = c =>
-        {
-            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
-        };
-
         // Subscribe to events
         qc.QualityCheckEvent += qcHandler;
         op.OrderProcessedEvent += opHandler;
 
+        void qcHandler(IVehicle c)
+        {
+            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
+            op.ProcessOrder(c);
+        }
+
+        void opHandler(IVehicle c)
+        {
+            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
+        }
+
         qc.CheckQuality(car);
 
-        // Unsubcsribe from events
+        // Unsubscribe from events
         qc.QualityCheckEvent -= qcHandler;
         op.OrderProcessedEvent -= opHandler;
     }
