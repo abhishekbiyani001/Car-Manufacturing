@@ -1,15 +1,30 @@
 ﻿using System;
 using System.Threading;
 
-public class Volkswagen
+public interface IVehicle
 {
-    required public string Brand
-    {
+    string Brand {
         get;
         set;
     }
-    required public string Model
-    {
+    string Model {
+        get;
+        set;
+    }
+
+    void StartEngine();
+    void Accelerate();
+    void Brake();
+    void StopEngine();
+}
+
+public class Volkswagen : IVehicle
+{
+    public required string Brand {
+        get;
+        set;
+    }
+    public required string Model {
         get;
         set;
     }
@@ -20,19 +35,22 @@ public class Volkswagen
         Console.WriteLine($"{Brand} engine started...");
         Thread.Sleep(750);
     }
-    public virtual void StopEngine()
-    {
-        Console.WriteLine($"{Brand} engine stopped...");
-        Thread.Sleep(750);
-    }
+
     public virtual void Accelerate()
     {
         Console.WriteLine($"{Brand} accelerating...");
         Thread.Sleep(750);
     }
+
     public virtual void Brake()
     {
         Console.WriteLine($"{Brand} braking...");
+        Thread.Sleep(750);
+    }
+
+    public virtual void StopEngine()
+    {
+        Console.WriteLine($"{Brand} engine stopped...");
         Thread.Sleep(750);
     }
 }
@@ -45,28 +63,28 @@ public class Porsche : Volkswagen { }
 
 public class QualityCheck
 {
-    public delegate void QualityCheckDelegate(Volkswagen car);
+    public delegate void QualityCheckDelegate(IVehicle car);
     public event QualityCheckDelegate? QualityCheckEvent;
 
-    public void CheckQuality(Volkswagen car)
+    public void CheckQuality(IVehicle car)
     {
         Thread.Sleep(750);
         Console.WriteLine("\nPerforming quality check...");
         QualityCheckEvent?.Invoke(car);
-        //Console.WriteLine("Quality check completed.");
     }
 }
 
 public class OrderProcessing
 {
-    public delegate void OrderProcessingDelegate(Volkswagen car);
+    public delegate void OrderProcessingDelegate(IVehicle car);
     public event OrderProcessingDelegate? OrderProcessedEvent;
 
-    public void ProcessOrder(Volkswagen car)
+    public void ProcessOrder(IVehicle car)
     {
         Thread.Sleep(750);
         Console.WriteLine("\nProcessing order...");
         OrderProcessedEvent?.Invoke(car);
+        Thread.Sleep(2000);
         Console.WriteLine("Order processing completed.");
         Console.WriteLine();
     }
@@ -86,7 +104,7 @@ public class Program
             Console.WriteLine("Enter model name: ");
             ModelName = Console.ReadLine()!;
 
-            Volkswagen? car = BrandName.ToLower() switch
+            IVehicle? car = BrandName.ToLower() switch
             {
                 "bmw" => new BMW { Brand = "BMW", Model = ModelName },
                 "audi" => new Audi { Brand = "Audi", Model = ModelName },
@@ -102,12 +120,12 @@ public class Program
             }
             else if (car == null)
             {
-                Console.WriteLine("Invalid brand name. Please enter BMW, Audi, or Mercedes.");
+                Console.WriteLine("Invalid brand name. Please enter a valid brand.");
             }
         }
     }
 
-    private static void ExecuteCarOperations(Volkswagen car)
+    private static void ExecuteCarOperations(IVehicle car)
     {
         car.StartEngine();
         car.Accelerate();
@@ -117,7 +135,7 @@ public class Program
         QualityCheck qc = new QualityCheck();
         OrderProcessing op = new OrderProcessing();
 
-        // subscribe to events
+        // Subscribe to events
         qc.QualityCheckEvent += c =>
         {
             Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
@@ -129,7 +147,7 @@ public class Program
         };
         qc.CheckQuality(car);
 
-        // unsubsrcibe from events
+        // Unsubcsribe from events
         qc.QualityCheckEvent -= c =>
         {
             Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
