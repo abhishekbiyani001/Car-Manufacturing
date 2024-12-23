@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 public interface IVehicle
 {
@@ -32,6 +33,7 @@ public class Volkswagen : IVehicle
 
     public virtual void StartEngine()
     {
+        Logger.Log($"{Brand} {Model}: Engine started.");
         Console.WriteLine();
         Console.WriteLine($"{Brand} engine started...");
         Thread.Sleep(750);
@@ -71,6 +73,7 @@ public class QualityCheck
     {
         Thread.Sleep(750);
         Console.WriteLine("\nPerforming quality check...");
+        Logger.Log($"{car.Brand} {car.Model}: Quality check completed.");
         QualityCheckEvent?.Invoke(car);
     }
 }
@@ -86,10 +89,32 @@ public class OrderProcessing
         Console.WriteLine("\nProcessing order...");
         OrderProcessedEvent?.Invoke(car);
         Thread.Sleep(2000);
+        Logger.Log($"{car.Brand} {car.Model}: Order processed.");
         Console.WriteLine("Order processing completed.");
         Console.WriteLine();
     }
 }
+
+public class Logger
+{
+    private static readonly string logFilePath = "CarLogs.txt";
+
+    public static void Log(string message)
+    {
+        try
+        {
+            using (StreamWriter sw = File.AppendText(logFilePath))
+            {
+                sw.WriteLine($"{DateTime.Now}: {message}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to write to log file: {ex.Message}");
+        }
+    }
+}
+
 
 public class Program
 {
