@@ -39,8 +39,8 @@ public class Volkswagen : IVehicle
     }
 }
 
-public class BMW : Volkswagen { }
+public class Bentley : Volkswagen { }
 public class Audi : Volkswagen { }
-public class Mercedes : Volkswagen { }
+public class Skoda : Volkswagen { }
 public class Lamborghini : Volkswagen { }
 public class Porsche : Volkswagen { }

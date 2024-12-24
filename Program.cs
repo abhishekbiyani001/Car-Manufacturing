@@ -9,7 +9,7 @@ public class Program
 
         while (true)
         {
-            Console.WriteLine("Enter brand name (BMW, Audi, Mercedes, Lamborghini, Porsche) or 'exit' to quit: ");
+            Console.WriteLine("Enter brand name (Bentley, Audi, Skoda, Lamborghini, Porsche) or 'exit' to quit: ");
             BrandName = Console.ReadLine()!;
             if (BrandName.ToLower() == "exit")
                 break;
@@ -19,9 +19,9 @@ public class Program
 
             IVehicle? car = BrandName.ToLower() switch
             {
-                "bmw" => new BMW { Brand = "BMW", Model = ModelName },
+                "bentley" => new Bentley { Brand = "Bentley", Model = ModelName },
                 "audi" => new Audi { Brand = "Audi", Model = ModelName },
-                "mercedes" => new Mercedes { Brand = "Mercedes", Model = ModelName },
+                "skoda" => new Skoda { Brand = "Skoda", Model = ModelName },
                 "lamborghini" => new Lamborghini { Brand = "Lamborghini", Model = ModelName },
                 "porsche" => new Porsche { Brand = "Porsche", Model = ModelName },
                 _ => null
@@ -48,25 +48,52 @@ public class Program
         QualityCheck qc = new QualityCheck();
         OrderProcessing op = new OrderProcessing();
 
-        // Subscribe to events
-        qc.QualityCheckEvent += qcHandler;
-        op.OrderProcessedEvent += opHandler;
+        // generate unique IDs for car and order
+        string carId = GenerateShortId();
+        string orderId = GenerateShortId();
 
-        void qcHandler(IVehicle c)
+        static string GenerateShortId()
         {
-            Console.WriteLine($"Quality check completed for {c.Brand} {c.Model}. Triggering order processing...");
-            op.ProcessOrder(c);
+            Random random = new Random();
+            return random.Next(10000, 100000).ToString();
         }
 
-        void opHandler(IVehicle c)
+        // Subscribe to events (lambda expressions)
+        qc.QualityCheckEvent += (IVehicle c, string cId) =>
         {
-            Console.WriteLine($"Order processed for {c.Brand} {c.Model}. Thank you for your purchase!");
-        }
+            Console.WriteLine($"Event Triggered: Quality check completed for {c.Brand} {c.Model} (Car ID: {cId}). Triggering order processing...");
+            op.ProcessOrder(c, orderId); // trigger order processing
+        };
 
-        qc.CheckQuality(car);
+        op.OrderProcessedEvent += (IVehicle c, string oId) =>
+        {
+            Console.WriteLine($"Event Triggered: Order processing for {c.Brand} {c.Model} (Order ID: {oId}). Thank you for your purchase!");
+            Console.WriteLine($"Order Status: {op.GetOrderStatus(oId)}");
+        };
+
+        qc.CheckQuality(car, carId);
+
+        Console.WriteLine();
+        Console.WriteLine("Quality Check Results:");
+        foreach (var result in qc.GetQualityResults(carId))
+        {
+            Console.WriteLine($"- {result}");
+        }
+        Console.WriteLine();
+        Thread.Sleep(1000);
 
         // Unsubscribe from events
-        qc.QualityCheckEvent -= qcHandler;
-        op.OrderProcessedEvent -= opHandler;
+        qc.QualityCheckEvent -= (IVehicle c, string cId) =>
+        {
+            Console.WriteLine($"Event Triggered: Quality check completed for {c.Brand} {c.Model} (Car ID: {cId}). Triggering order processing...");
+            op.ProcessOrder(c, orderId);
+        };
+
+        op.OrderProcessedEvent -= (IVehicle c, string oId) =>
+        {
+            Console.WriteLine($"Event Triggered: Order processed for {c.Brand} {c.Model} (Order ID: {oId}). Thank you for your purchase!");
+            Console.WriteLine();
+            Console.WriteLine($"Order Status: {op.GetOrderStatus(oId)}");
+        };
     }
 }
