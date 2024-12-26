@@ -38,9 +38,3 @@ public class Volkswagen : IVehicle
         Thread.Sleep(750);
     }
 }
-
-public class Bentley : Volkswagen { }
-public class Audi : Volkswagen { }
-public class Skoda : Volkswagen { }
-public class Lamborghini : Volkswagen { }
-public class Porsche : Volkswagen { }
